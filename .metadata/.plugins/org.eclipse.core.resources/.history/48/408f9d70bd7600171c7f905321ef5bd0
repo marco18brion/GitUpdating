@@ -1,0 +1,117 @@
+package Testing;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+public class GitGetter {
+	private static ArrayList<String> urlList;
+	private static ArrayList<String> nameList;
+	private static Process pr;
+	private static Runtime rt = Runtime.getRuntime();
+
+	
+	public static void main(String[] args) throws IOException, InterruptedException {
+		urlList = new ArrayList<String>();
+		nameList = new ArrayList<String>();
+		doThings();
+	}
+	
+	public static void doThings() throws IOException, InterruptedException {
+		File file = new File("src/resources/Test.txt");
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String line = br.readLine();
+		System.out.println("Begin");
+		while(line != null) {
+			BufferedWriter out = new BufferedWriter(new FileWriter("file.txt"));
+			goGetUrls(line, out);
+			out.close();
+			line = br.readLine();
+		}
+		for(int i = 0; i < urlList.size(); i++) {
+			String url = urlList.get(i);
+			String name = nameList.get(i);
+			//addFile(url, name);
+			
+		}
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("----------------------------------------------------------------------------");
+		System.out.println("Finished   :)");
+	}
+
+
+	private static void goGetUrls(String line, BufferedWriter out) {
+		String urlName = "http://github.corp.rlws.com/RiceLake-Engineering/";
+		String nameMaker = "\"name\": ";
+		if(line.contains(nameMaker)) {
+			line = line.substring(15, line.length()-2);
+			System.out.println(urlName + line);
+			urlList.add(line);
+			
+			nameList.add(line);
+		}
+	}
+	
+	
+	private static void addFile(String url, String name) throws IOException, InterruptedException {
+				String[] command = { "cmd", };
+				Process p;
+				p = Runtime.getRuntime().exec(command);
+				new Thread(new SyncPipe(p.getErrorStream(), System.err)).start();
+			    new Thread(new SyncPipe(p.getInputStream(), System.out)).start();
+			    PrintWriter stdin = new PrintWriter(p.getOutputStream());
+			    stdin.println("cd c:\\Users\\marbri\\desktop\\gitTestFolder");
+			    stdin.println("git clone " + url);
+			    stdin.println("cd " + name);
+			    
+////////////////////////////////////////////////////////////////////////////////////////
+			    stdin.println("xcopy /y c:\\Users\\marbri\\desktop\\.gitattributes");			   
+////////////////////////////////////////////////////////////////////////////////////////
+			    stdin.println("git add .");
+			    stdin.println("git commit -m \"Updated .gitattributes\"");
+			    stdin.println("git push");
+			    
+			    //stdin.println("rmdir c:\\Users\\marbri\\desktop\\gitTestFolder\\" + name);
+			    // write any other commands you want here
+			    stdin.close();
+			    int returnCode = p.waitFor();
+	}
+
+	static class SyncPipe implements Runnable
+	{
+	public SyncPipe(InputStream istrm, OutputStream ostrm) {
+	      istrm_ = istrm;
+	      ostrm_ = ostrm;
+	  }
+	  public void run() {
+	      try
+	      {
+	          final byte[] buffer = new byte[1024];
+	          for (int length = 0; (length = istrm_.read(buffer)) != -1; )
+	          {
+	              ostrm_.write(buffer, 0, length);
+	          }
+	      }
+	      catch (Exception e)
+	      {
+	          e.printStackTrace();
+	      }
+	  }
+	  private final OutputStream ostrm_;
+	  private final InputStream istrm_;
+	}
+}
